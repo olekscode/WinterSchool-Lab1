@@ -1,3 +1,6 @@
+# The objective is to forecast the credit score of bank clients
+# relying on several explanatory variables.
+
 require(GGally)
 
 # Reading the credit score data
@@ -10,10 +13,15 @@ ggpairs(credit)
 # 2. Split the data randomly into training and test data set (sample).
 
 #Sample Indexes
-indexes = sample(1:nrow(credit), size=0.2*nrow(credit))
+indexes <- sample(1:nrow(credit), size=0.2*nrow(credit))
 
 # Split data
-test = credit[indexes,]
-dim(test)  # 100 8
-train = credit[-indexes,]
-dim(train) # 400 11
+credit.test <- credit[indexes,]
+dim(credit.test)  # 100 8
+
+credit.train <- credit[-indexes,]
+dim(credit.train) # 400 11
+
+# 3. Run the regression using training data set. Assess the fit.
+model <- lm(score ~ ., credit.train)
+summary(model)
