@@ -5,14 +5,14 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "164132257",
+    "hash" : "0",
     "id" : "E3C0825D",
-    "lastKnownWriteTime" : 1515760263,
-    "last_content_update" : 1515760263675,
+    "lastKnownWriteTime" : 1515760682,
+    "last_content_update" : 1515760682233,
     "path" : "~/Documents/UCU/MSc. in Data Science/Winter School/Time Series Analysis/labs/lab1/script.R",
     "project_path" : "script.R",
     "properties" : {
-        "cursorPosition" : "4,0",
+        "cursorPosition" : "9,60",
         "scrollLine" : "0",
         "tempName" : "Untitled1"
     },
