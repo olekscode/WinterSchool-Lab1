@@ -7,13 +7,13 @@
     "folds" : "",
     "hash" : "0",
     "id" : "E3C0825D",
-    "lastKnownWriteTime" : 1515761275,
-    "last_content_update" : 1515761275174,
+    "lastKnownWriteTime" : 1515761559,
+    "last_content_update" : 1515761559085,
     "path" : "~/Documents/UCU/MSc. in Data Science/Winter School/Time Series Analysis/labs/lab1/script.R",
     "project_path" : "script.R",
     "properties" : {
-        "cursorPosition" : "16,0",
-        "scrollLine" : "3",
+        "cursorPosition" : "21,11",
+        "scrollLine" : "11",
         "tempName" : "Untitled1"
     },
     "relative_order" : 1,

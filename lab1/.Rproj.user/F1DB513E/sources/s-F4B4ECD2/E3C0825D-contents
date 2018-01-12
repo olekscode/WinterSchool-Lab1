@@ -12,10 +12,10 @@ ggpairs(credit)
 
 # 2. Split the data randomly into training and test data set (sample).
 
-#Sample Indexes
+# Sample indexes
 indexes <- sample(1:nrow(credit), size=0.2*nrow(credit))
 
-# Split data
+# Splitting the data
 credit.test <- credit[indexes,]
 dim(credit.test)  # 100 8
 
@@ -25,3 +25,11 @@ dim(credit.train) # 400 11
 # 3. Run the regression using training data set. Assess the fit.
 model <- lm(score ~ ., credit.train)
 summary(model)
+plot(model)
+
+# 4. Compute the confidence intervals for the parameters.
+confint(model)
+
+# 5. Compute the forecasts (point, prediction and confidence intervals)
+# for the test data set (predict, forecast).
+pred <- predict(model, newdata = credit.test, interval = "confidence")
