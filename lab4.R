@@ -12,19 +12,19 @@ loss.functions = function(x.hat, x) {
   c(mean((x-x.hat)^2), mean(abs(x-x.hat)), mean(abs( (x-x.hat)/x )) )
 }
 
-true.forecast <- function() {
+naive.forecast <- function() {
   sapply(tau:1, function(x) naive(head(elecequip,-x),1)$mean)
 }
 
-naive.forecast <- function() {
+seas.naive.forecast <- function() {
   sapply(tau:1, function(x) snaive(head(elecequip,-x),1)$mean)
 }
 
-seas.naive.forecast <- function() {
+abs.trend.forecast <- function() {
   2*elecequip[(n-tau):(n-1)]-elecequip[(n-tau-1):(n-2)]
 }
 
-abs.trend.forecast <- function() {
+rel.trend.forecast <- function() {
   elecequip[(n-tau):(n-1)]^2/elecequip[(n-tau-1):(n-2)]
 }
 
@@ -42,10 +42,10 @@ get.holtwinters.forecast <- function(beta = NULL, gamma = NULL) {
 }
 
 models <- c(
-  true.forecast,
   naive.forecast,
   seas.naive.forecast,
   abs.trend.forecast,
+  rel.trend.forecast,
   get.maf.forecast(width = 3),
   get.maf.forecast(width = 5),
   get.maf.forecast(width = 7),
