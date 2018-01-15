@@ -12,29 +12,29 @@ loss.functions = function(x.hat, x) {
   c(mean((x-x.hat)^2), mean(abs(x-x.hat)), mean(abs( (x-x.hat)/x )) )
 }
 
-naive.forecast <- function() {
+naive.model <- function() {
   sapply(tau:1, function(x) naive(head(elecequip,-x),1)$mean)
 }
 
-seas.naive.forecast <- function() {
+seas.naive.model <- function() {
   sapply(tau:1, function(x) snaive(head(elecequip,-x),1)$mean)
 }
 
-abs.trend.forecast <- function() {
+abs.trend.model <- function() {
   2*elecequip[(n-tau):(n-1)]-elecequip[(n-tau-1):(n-2)]
 }
 
-rel.trend.forecast <- function() {
+rel.trend.model <- function() {
   elecequip[(n-tau):(n-1)]^2/elecequip[(n-tau-1):(n-2)]
 }
 
-get.maf.forecast <- function(width) {
+get.maf.model <- function(width) {
   function() {
     tail(rollapply(elecequip, width = width, by = 1, FUN = mean, align = "right"), tau)
   }
 }
 
-get.holtwinters.forecast <- function(beta = NULL, gamma = NULL) {
+get.holtwinters.model <- function(beta = NULL, gamma = NULL) {
   function() {
     my.mod = HoltWinters(elecequip, beta=beta, gamma=gamma)
     tail(my.mod$fitted[,1], tau)
@@ -42,16 +42,16 @@ get.holtwinters.forecast <- function(beta = NULL, gamma = NULL) {
 }
 
 models <- c(
-  naive.forecast,
-  seas.naive.forecast,
-  abs.trend.forecast,
-  rel.trend.forecast,
-  get.maf.forecast(width = 3),
-  get.maf.forecast(width = 5),
-  get.maf.forecast(width = 7),
-  get.holtwinters.forecast(beta = FALSE, gamma = FALSE),
-  get.holtwinters.forecast(gamma = FALSE),
-  get.holtwinters.forecast()
+  naive.model,
+  seas.naive.model,
+  abs.trend.model,
+  rel.trend.model,
+  get.maf.model(width = 3),
+  get.maf.model(width = 5),
+  get.maf.model(width = 7),
+  get.holtwinters.model(beta = FALSE, gamma = FALSE),
+  get.holtwinters.model(gamma = FALSE),
+  get.holtwinters.model()
 );
 
 all.forec = matrix(0, ncol=10, nrow=tau);
