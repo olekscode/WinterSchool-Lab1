@@ -45,6 +45,19 @@ mse(credit.test$score, forec$mean)
 mae(credit.test$score, forec$mean)
 mape(credit.test$score, forec$mean)
 
+# Plot forecast errors
+plot(credit.test$score, credit.test$score - forec$mean)
+plot(credit.test.log$score, credit.test.log$score - forec.log$mean)
+
+# 7. Make appropriate data transformation and repeat the above steps
+# for the new model.
+model.transformed <-
+  lm(score ~ savings + I(income ^ 2) + log(savings + 1),
+  data = credit.train)
+
+summary(model.transformed)
+confint(model.transformed)
+
 # Model with logs
 col.names <- names(credit)[2:ncol(credit)]
 
@@ -61,27 +74,14 @@ credit.train.log = cbind(
 names(credit.train.log) <- col.names
 
 # Model and forecasts
-model.simple.log = lm(score ~ ., credit.train.log)
+model.log = lm(score ~ ., credit.train.log)
 
 pred.log = predict(
-  model.simple.log,
+  model.log,
   newdata = credit.test.log,
   interval = "confidence")
 
-forec.log = forecast(model.simple.log, newdata = credit.test.log)
-
-# Plot forecast errors
-plot(credit.test$score, credit.test$score - forec$mean)
-plot(credit.test.log$score, credit.test.log$score - forec.log$mean)
-
-# 7. Make appropriate data transformation and repeat the above steps
-# for the new model.
-model.transformed <-
-  lm(score ~ savings + I(income ^ 2) + log(savings + 1),
-  data = credit.train)
-
-summary(model.transformed)
-confint(model.transformed)
+forec.log = forecast(model.log, newdata = credit.test.log)
 
 # 8. Compute the marginal effects for the original and the transformed
 # models (margins).
