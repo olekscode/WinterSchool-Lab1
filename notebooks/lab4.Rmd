@@ -1,30 +1,27 @@
 ---
-title: "Tutorial 4"
+title: "Time Series Analysis and Forecasting. Tutorial 4"
 output: html_notebook
 ---
 
+This notebook is based on the examples from the lecture of Yarema Okhrin.
 ```{r}
 library("forecast")
 library("fpp")
-library("fpp2")
 ```
 
+### Loading the dataset
+We will be using [elecequip](https://www.rdocumentation.org/packages/fpp/versions/0.5/topics/elecequip) - a time series of Electrical Equipment Manufactured In The Euro Area. This dataset is loaded from [fpp](https://www.rdocumentation.org/packages/fpp/versions/0.5) package. Data is adjusted by working days; Euro area (16 countries).
 ```{r}
 data(elecequip)
+head(elecequip, n = 48)
 ```
 
 ```{r}
-tau=10;
-n=length(elecequip);
-loss.all=list();
+tau <- 10;
+n = length(elecequip)
 ```
 
-```{r}
-loss.functions = function(x.hat, x) {
-  c(mean((x-x.hat)^2), mean(abs(x-x.hat)), mean(abs( (x-x.hat)/x )) )
-}
-```
-
+### Building forecasting models
 ```{r}
 naive.model <- function() {
   sapply(tau:1, function(x) naive(head(elecequip,-x),1)$mean)
@@ -73,6 +70,7 @@ models <- c(
 );
 ```
 
+### Forecasting
 ```{r}
 all.forec = matrix(0, ncol=10, nrow=tau);
 for(i in 1:10) {
@@ -80,11 +78,18 @@ for(i in 1:10) {
 }
 ```
 
+### Computing losses
 ```{r}
-# computing all losses
+loss.functions = function(x.hat, x) {
+  c(mean((x-x.hat)^2), mean(abs(x-x.hat)), mean(abs( (x-x.hat)/x )) )
+}
+```
+
+```{r}
 apply(all.forec, 2, function(x) loss.functions(x, tail(elecequip,tau)))
 ```
 
+### Plotting forecasts
 ```{r}
 # plot all forecasts
 model.names = c("true", "naive", "seas. naive","abs trend", "rel. trend", "maf 3", "maf 5", "maf 7", "emwa", "holt", "holtwinters")
