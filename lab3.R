@@ -2,18 +2,14 @@ library("forecast")
 library("fpp")
 library("fpp2")
 library("GGally")
+library("chron")
 
 # seasonal
-data(elecequip) # seasonal
+data(elecequip)
 
-#linear regression
-
-loss.functions = function(x.hat, x)
-{
+loss.functions = function(x.hat, x) {
   return(c(mean((x-x.hat)^2), mean(abs(x-x.hat)), mean(abs( (x-x.hat)/x )) ));
 }
-
-write.csv2(elecequip, file="elecequip.csv", quote=FALSE)
 
 # getting nice figures
 ggseasonplot(elecequip)
@@ -33,7 +29,6 @@ plot(elecequip, col="blue")
 lines(ts(Z.loess$fitted, start=start(elecequip), end=end(elecequip), frequency=12), col="green")
 
 # getting the seasonal component
-library("chron")
 Z.trend = ma(elecequip, order=12, centre=TRUE);
 # Z.trend = ts(Z.loess$fitted, start=start(elecequip), end=end(elecequip), frequency=12);
 S=ts(rep(tapply(elecequip-Z.trend, cycle(elecequip-Z.trend), mean, na.rm=T), end(elecequip)[1]-start(elecequip)[1]+1),  frequency = 12, start = start(elecequip))
