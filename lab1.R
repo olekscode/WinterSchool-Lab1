@@ -1,10 +1,10 @@
 # The objective is to forecast the credit score of bank clients
 # relying on several explanatory variables.
 
-require(GGally)
-require(forecast)
-require(Metrics)
-require(margins)
+library(GGally)
+library(forecast)
+library(Metrics)
+library(margins)
 
 # Read the credit score data
 credit <- read.csv("data/credit.csv", sep = ";", dec = ",")
