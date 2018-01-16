@@ -1,0 +1,39 @@
+---
+title: "Time Series Analysis and Forecasting. Tutorial 1"
+output: html_notebook
+---
+
+This notebook is based on the examples from the Time Series Analysis and Forecasting lectures by Yarema Okhrin.
+
+The objective is to forecast the credit score of bank clients relying on several explanatory variables.
+
+```{r}
+library(fpp)
+library(GGally)
+library(forecast)
+library(Metrics)
+library(margins)
+```
+
+### 1. Import the data and make appropriate visualisation (pairs, ggpairs)
+```{r}
+credit <- data(credit)
+```
+
+```{r}
+pairs(credit)
+ggpairs(credit)
+```
+
+### 2. Split the data randomly into training and test data set (sample)
+```{r}
+# Sample indexes
+indexes <- sample(1:nrow(credit), size=0.2*nrow(credit))
+
+# Split the data
+credit.test <- credit[indexes,]
+dim(credit.test)  # 100 8
+
+credit.train <- credit[-indexes,]
+dim(credit.train) # 400 11
+```
