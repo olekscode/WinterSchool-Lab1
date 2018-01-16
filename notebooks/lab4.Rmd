@@ -3,7 +3,8 @@ title: "Time Series Analysis and Forecasting. Tutorial 4"
 output: html_notebook
 ---
 
-This notebook is based on the examples from the lecture of Yarema Okhrin.
+This notebook is based on the examples from the Time Series Analysis and Forecasting lectures by Yarema Okhrin.
+
 ```{r}
 library("forecast")
 library("fpp")
@@ -11,6 +12,7 @@ library("fpp")
 
 ### Loading the dataset
 We will be using [elecequip](https://www.rdocumentation.org/packages/fpp/versions/0.5/topics/elecequip) - a time series of Electrical Equipment Manufactured In The Euro Area. This dataset is loaded from [fpp](https://www.rdocumentation.org/packages/fpp/versions/0.5) package. Data is adjusted by working days; Euro area (16 countries).
+
 ```{r}
 data(elecequip)
 head(elecequip, n = 48)
