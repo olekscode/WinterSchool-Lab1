@@ -17,11 +17,14 @@ library(margins)
 
 ### 1. Import the data and make appropriate visualisation (pairs, ggpairs)
 ```{r}
-credit <- data(credit)
+data(credit)
 ```
 
 ```{r}
 pairs(credit)
+```
+
+```{r results='hide',fig.keep='all'}
 ggpairs(credit)
 ```
 
@@ -36,4 +39,10 @@ dim(credit.test)  # 100 8
 
 credit.train <- credit[-indexes,]
 dim(credit.train) # 400 11
+```
+### 3. Run the regression using training data set. Assess the fit
+```{r}
+model.simple <- lm(score ~ ., credit.train)
+summary(model.simple)
+plot(model.simple)
 ```
