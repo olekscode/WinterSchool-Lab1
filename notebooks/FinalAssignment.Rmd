@@ -1,0 +1,23 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+```{r}
+library(forecast)
+```
+
+### 1. Regression-type modelling and forecasting with BeerWineUS.csv
+
+```{r}
+beerwine <- read.csv('../data/BeerWineUS.csv')
+beerwine <- ts(beerwine)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+```{r}
+head(beerwine)
+```
