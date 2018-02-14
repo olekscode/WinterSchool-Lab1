@@ -1,23 +1,247 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Time Series Analysis and Forecasting. Final Assignment"
+output:
+  html_notebook: default
+  pdf_document: default
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
 ```{r}
+library(xts)
 library(forecast)
+library(car)
+library(ggplot2)
 ```
 
-### 1. Regression-type modelling and forecasting with BeerWineUS.csv
+### 1. Regression-type modelling and forecasting
+
+**(a) Import the 1st data set to R. Create a ts-object. Keep the last 5 years of data as test data set.**
 
 ```{r}
 beerwine <- read.csv('../data/BeerWineUS.csv')
-beerwine <- ts(beerwine)
+beerwine <- ts(beerwine$MRTSSM4453USN, start = 1992, frequency = 12)
+
+N <- length(beerwine)
+beerwine.train <- window(beerwine, end=2012.99)
+beerwine.test <- window(beerwine, start=2013)
+
+print(beerwine.test)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+**(b) Plot the data and choose an appropriate order of time polynomial for modelling. Run a simple regression on the time polynomial and check the autocorrelation of the residuals (also using Durbin-Watson). What can be concluded?**
 
 ```{r}
-head(beerwine)
+plot(beerwine.train)
+```
+
+```{r}
+t <- time(beerwine.train)
+fit <- lm(beerwine.train ~ I(t^2) + I(t))
+prd <- data.frame(t = t)
+err <- predict(fit, newdata = prd, se.fit = TRUE)
+
+prd$lci <- err$fit - 1.96 * err$se.fit
+prd$fit <- err$fit
+prd$uci <- err$fit + 1.96 * err$se.fit
+
+ggplot(prd, aes(x = t, y = fit)) +
+  theme_bw() +
+  geom_line() +
+  geom_smooth(aes(ymin = lci, ymax = uci), stat = "identity") +
+  geom_line(data = beerwine.train, aes(x = t, y = beerwine.train))
+```
+
+```{r}
+summary(fit)
+```
+
+```{r}
+durbinWatsonTest(fit)
+```
+
+p-value is pretty high, which means that we should reject the null hypothesis about autocorrelation beign zero. This means that the residuals are autocorrelated.
+
+```{r}
+acf(fit$residuals)
+```
+
+**(c) Since the time series is rather short to define a dummy for every month, it is rea- sonable to define dummies for longer periods. Use ggmonthplot or ggseasonplot to decide if it is possible to assign dummies to quarters/specific months, etc. Run a corresponding regression and check the residuals as above.**
+
+```{r}
+ggmonthplot(beerwine.train)
+```
+
+```{r}
+ggseasonplot(beerwine.train)
+```
+
+```{r}
+m <- cycle(beerwine.train)
+Q1 <- as.numeric(m >= 1 & m <= 7)
+Q2 <- as.numeric(m >= 8 & m <= 11)
+Q3 <- as.numeric(m == 12)
+```
+
+```{r}
+t <- time(beerwine.train)
+t1 <- I(t)
+t2 <- I(t^2)
+beerwine.train.df <- as.data.frame(cbind(beerwine.train, t1, t2, Q1, Q2, Q3))
+```
+
+```{r}
+fit <- lm(beerwine.train ~ ., data = beerwine.train.df)
+```
+
+```{r}
+summary(fit)
+```
+
+```{r warning=FALSE}
+t <- time(beerwine.train)
+prd <- data.frame(t = t)
+err <- predict(fit, newdata = prd, se.fit = TRUE)
+
+prd$lci <- err$fit - 1.96 * err$se.fit
+prd$fit <- err$fit
+prd$uci <- err$fit + 1.96 * err$se.fit
+
+ggplot(prd, aes(x = t, y = fit)) +
+  theme_bw() +
+  geom_line() +
+  geom_smooth(aes(ymin = lci, ymax = uci), stat = "identity") +
+  geom_line(data = beerwine.train, aes(x = t, y = beerwine.train))
+```
+
+```{r}
+durbinWatsonTest(fit)
+```
+
+```{r}
+acf(fit$residuals)
+```
+
+**(d) With the last model compute the (interval) forecasts for the test data set and visualize the results.**
+
+```{r}
+m <- cycle(beerwine.test)
+Q1 <- as.numeric(m >= 1 & m <= 7)
+Q2 <- as.numeric(m >= 8 & m <= 11)
+Q3 <- as.numeric(m == 12)
+```
+
+```{r}
+t <- time(beerwine.test)
+t1 <- I(t)
+t2 <- I(t^2)
+beerwine.test.df <- as.data.frame(cbind(beerwine.test, t1, t2, Q1, Q2, Q3))
+```
+
+```{r}
+pred <- as.ts(cbind(beerwine.test, predict(fit, newdata=beerwine.test.df)))
+res = as.ts(cbind(beerwine.train, fit$fitted))
+```
+
+```{r}
+plot(pred[,2])
+```
+
+### 2. Time series decomposition
+
+**(a) Try several moving average techniques to extract the trend (ma). Which orders/form of moving averages do provide the best results?**
+
+```{r}
+tau <- 10;
+
+get.maf <- function(width) {
+  function(series) {
+    rollapply(series, width = width, by = 1, FUN = mean, align = "right")
+  }
+}
+```
+
+```{r}
+maf3 <- get.maf(3)
+maf5 <- get.maf(5)
+maf7 <- get.maf(7)
+```
+
+```{r}
+s <- beerwine.train
+all.forec <- cbind(maf3(s), maf5(s), maf7(s))
+all <- cbind(s, all.forec);
+plot.ts(all, plot.type="single", col=c(1:6,1:5))
+
+model.names <- c("true", "maf 3", "maf 5", "maf 7")
+legend(x = "bottomright", legend=model.names, ncol=3, bty="n", col=c(1:6,1:5), lty=c(rep(1,6),rep(2,6)))
+```
+
+**(b) Apply the loess regression for trend extraction.**
+
+We apply R's stl() function ("seasonal and trend decomposition using Loess") to decompose beerwine data
+
+```{r}
+decomposed <- stl(beerwine.train, s.window="periodic")
+trend <- decomposed$time.series[,2]
+plot(trend)
+```
+
+**(c) For one of the above computed trends compute the seasonal and the irregular components. Visualize the decomposition.**
+
+```{r}
+seasonal <- decomposed$time.series[,1]
+irregular <- decomposed$time.series[,3]
+```
+
+```{r}
+plot(decomposed)
+```
+
+**(d) Check the ACF of the irregular component. Is there anything left in the time series?**
+
+```{r}
+acf(irregular)
+```
+
+Yes, there are big spikes at lags 1 and 2. So the current value still depends consistently on the value of the same month in a previous year.
+
+### 3. Simple forecasting and forecasting with exponential smoothing
+
+**(a) Compute simple one-step-ahead forecasts for the test data set using naıve, absolute trend and relative trend methods. Compute the corresponding losses.**
+
+```{r}
+tau <- length(beerwine.test) - 1
+
+seas.naive <- function(series) {
+  sapply(tau:1, function(x) snaive(head(series, -x), 1)$mean)
+}
+
+abs.trend <- function(series) {
+  n <- length(series)
+  2 * series[(n - tau):(n - 1)] - series[(n - tau - 1):(n - 2)]
+}
+
+rel.trend <- function(series) {
+  n <- length(series)
+  series[(n - tau):(n - 1)] ^ 2 / series[(n - tau - 1):(n - 2)]
+}
+```
+
+```{r warning=FALSE}
+s <- beerwine.test
+all.forec <- cbind(seas.naive(s), abs.trend(s), rel.trend(s))
+all <- cbind(tail(s, tau), all.forec)
+plot.ts(all, plot.type="single", col=c(1:6,1:5))
+
+model.names <- c("true", "naive", "absolute trend", "relative trend")
+legend(x = "topleft", legend=model.names, ncol=3, bty="n", col=c(1:6,1:5), lty=c(rep(1,6),rep(2,6)))
+```
+
+```{r}
+loss.functions <- function(x.hat, x) {
+  c(mean((x-x.hat)^2), mean(abs(x-x.hat)), mean(abs( (x-x.hat)/x )) )
+}
+```
+
+```{r}
+apply(all.forec, 2, function(x) loss.functions(x, tail(beerwine.test, tau)))
 ```
